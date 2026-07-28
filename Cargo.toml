@@ -1,0 +1,32 @@
+[package]
+name = "aperip-nomos"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+axum = { version = "0.8", features = ["json", "multipart", "tokio"] }
+base64 = "0.22"
+fs2 = "0.4"
+hex = "0.4"
+http = "1"
+rnmdb-cli = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }
+rnmdb-common = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }
+rnmdb-storage = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }
+rnmdb-types = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+subtle = "2"
+thiserror = "2"
+time = "0.3"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync"] }
+tower-http = { version = "0.6", features = ["catch-panic", "compression-gzip", "limit", "request-id", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[dev-dependencies]
+http-body-util = "0.1"
+tempfile = "3"
+tower = { version = "0.5", features = ["util"] }
+

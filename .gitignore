@@ -1,0 +1,8 @@
+/target/
+/.superpowers/
+/.env
+/data/
+/secrets/
+*.rnmdb
+*.rnmdb.lock
+
