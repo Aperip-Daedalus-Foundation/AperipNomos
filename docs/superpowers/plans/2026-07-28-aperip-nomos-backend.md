@@ -107,7 +107,7 @@
 - Modify: `README.md`
 
 - [ ] Add a cached Rust builder and a non-root Debian runtime exposing ports
-  8080 and 8081.
+  28740 and 28741.
 - [ ] Add Compose secrets, persistent RNMDB volume, read-only root filesystem,
   health check, and explicit dual host-port mappings.
 - [ ] Document secret creation, local Cargo run, Compose run, and curl examples
@@ -119,4 +119,3 @@
 - [ ] Run `cargo build --release --locked`.
 - [ ] Run `docker compose config --quiet` and `docker build -t aperip-nomos:local .`.
 - [ ] Commit with `chore(container): add hardened dual-port delivery`.
-

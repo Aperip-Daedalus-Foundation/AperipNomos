@@ -9,8 +9,8 @@ interaction for the next phase. No Node.js or JavaScript build chain is used.
 ## Architecture
 
 One Tokio process starts two Axum listeners. The public listener exposes
-read-only catalog APIs on port 8080. The administrator listener exposes
-authenticated mutation APIs on port 8081. Both listeners share a bounded
+read-only catalog APIs on port 28740. The administrator listener exposes
+authenticated mutation APIs on port 28741. Both listeners share a bounded
 actor handle; a dedicated thread exclusively owns one encrypted RNMDB
 `LocalSession`, serializing every database operation and preventing unsafe
 multi-session writes.
@@ -65,7 +65,7 @@ details are not included in HTTP responses.
 ## Container Boundary
 
 A multi-stage Dockerfile builds one Rust binary and runs it as a non-root user
-with a read-only root filesystem. Compose exposes ports 8080 and 8081, mounts a
+with a read-only root filesystem. Compose exposes ports 28740 and 28741, mounts a
 persistent database volume, and injects the RNMDB page key and administrator
 token as files under `/run/secrets`.
 
@@ -77,4 +77,3 @@ RNMDB file. Router tests prove bearer authentication and confirm that mutation
 routes are absent from the public listener. Final gates are formatting,
 workspace check, warning-free Clippy, tests, release build, and Docker Compose
 configuration validation.
-

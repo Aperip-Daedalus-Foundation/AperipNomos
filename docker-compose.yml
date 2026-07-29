@@ -1,0 +1,71 @@
+name: ${COMPOSE_PROJECT_NAME:-aperip-nomos}
+
+services:
+  app:
+    image: aperip-nomos:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    environment:
+      PUBLIC_BIND_ADDR: 0.0.0.0:28740
+      ADMIN_BIND_ADDR: 0.0.0.0:28741
+      RNMDB_PATH: /var/lib/aperip-nomos/aperip-nomos.rnmdb
+      RNMDB_PAGE_KEY_FILE: /run/secrets/rnmdb_page_key
+      ADMIN_TOKEN_FILE: /run/secrets/admin_token
+      RUST_LOG: ${RUST_LOG:-aperip_nomos=info,tower_http=info}
+    ports:
+      - name: public-http
+        target: 28740
+        published: "${PUBLIC_PORT:-28740}"
+        protocol: tcp
+      - name: admin-http
+        target: 28741
+        published: "${ADMIN_PORT:-28741}"
+        host_ip: ${ADMIN_HOST:-127.0.0.1}
+        protocol: tcp
+    volumes:
+      - type: volume
+        source: rnmdb-data
+        target: /var/lib/aperip-nomos
+    secrets:
+      - source: rnmdb_page_key
+        target: rnmdb_page_key
+      - source: admin_token
+        target: admin_token
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,uid=10001,gid=10001,mode=1770
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    pids_limit: 256
+    cpus: ${APP_CPUS:-1.0}
+    mem_limit: ${APP_MEMORY_LIMIT:-768m}
+    restart: unless-stopped
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - http://127.0.0.1:28740/health/ready
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+volumes:
+  rnmdb-data: {}
+
+secrets:
+  rnmdb_page_key:
+    file: ${RNMDB_PAGE_KEY_HOST_FILE:-./secrets/rnmdb_page_key}
+  admin_token:
+    file: ${ADMIN_TOKEN_HOST_FILE:-./secrets/admin_token}

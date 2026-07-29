@@ -1,0 +1,9 @@
+.git
+.superpowers
+.env*
+target
+data
+secrets
+!.env.example
+*.rnmdb
+*.rnmdb.lock
