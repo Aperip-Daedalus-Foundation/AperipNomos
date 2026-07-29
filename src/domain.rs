@@ -17,6 +17,17 @@ pub struct LicenseDraft {
     uploaded_at_ms: i64,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LicenseDocument {
+    id: i64,
+    slug: String,
+    title: String,
+    body: String,
+    source_filename: String,
+    sha256: String,
+    uploaded_at_ms: i64,
+}
+
 impl LicenseDraft {
     pub fn from_upload(
         filename: &str,
@@ -71,6 +82,74 @@ impl LicenseDraft {
 
     pub fn uploaded_at_ms(&self) -> i64 {
         self.uploaded_at_ms
+    }
+
+    pub(crate) fn into_document(self, id: i64) -> LicenseDocument {
+        LicenseDocument {
+            id,
+            slug: self.slug,
+            title: self.title,
+            body: self.body,
+            source_filename: self.source_filename,
+            sha256: self.sha256,
+            uploaded_at_ms: self.uploaded_at_ms,
+        }
+    }
+}
+
+impl LicenseDocument {
+    pub fn id(&self) -> i64 {
+        self.id
+    }
+
+    pub fn slug(&self) -> &str {
+        &self.slug
+    }
+
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn body(&self) -> &str {
+        &self.body
+    }
+
+    pub fn source_filename(&self) -> &str {
+        &self.source_filename
+    }
+
+    pub fn sha256(&self) -> &str {
+        &self.sha256
+    }
+
+    pub fn uploaded_at_ms(&self) -> i64 {
+        self.uploaded_at_ms
+    }
+
+    pub(crate) fn rehydrate(
+        id: i64,
+        slug: String,
+        title: String,
+        body: String,
+        source_filename: String,
+        sha256: String,
+        uploaded_at_ms: i64,
+    ) -> Option<Self> {
+        if id < 1 {
+            return None;
+        }
+        let draft = LicenseDraft::from_upload(
+            &source_filename,
+            Some(&title),
+            Some(&slug),
+            body.as_bytes(),
+            uploaded_at_ms,
+        )
+        .ok()?;
+        if draft.slug != slug || draft.sha256 != sha256 {
+            return None;
+        }
+        Some(draft.into_document(id))
     }
 }
 
