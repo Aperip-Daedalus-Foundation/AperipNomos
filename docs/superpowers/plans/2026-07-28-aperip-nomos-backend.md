@@ -107,7 +107,7 @@
 - Modify: `README.md`
 
 - [ ] Add a cached Rust builder and a non-root Debian runtime exposing ports
-  28740 and 28741.
+  54871 and 54872.
 - [ ] Add Compose secrets, persistent RNMDB volume, read-only root filesystem,
   health check, and explicit dual host-port mappings.
 - [ ] Document secret creation, local Cargo run, Compose run, and curl examples

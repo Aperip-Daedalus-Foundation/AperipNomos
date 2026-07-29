@@ -30,6 +30,6 @@ COPY --from=builder --chown=0:0 /out/aperip-nomos /usr/local/bin/aperip-nomos
 
 USER 10001:10001
 WORKDIR /var/lib/aperip-nomos
-EXPOSE 28740 28741
+EXPOSE 54871 54872
 
 ENTRYPOINT ["/usr/local/bin/aperip-nomos"]

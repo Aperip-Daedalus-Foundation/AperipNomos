@@ -8,8 +8,8 @@ use std::{
 
 use thiserror::Error;
 
-pub const DEFAULT_PUBLIC_BIND_ADDR: &str = "0.0.0.0:28740";
-pub const DEFAULT_ADMIN_BIND_ADDR: &str = "127.0.0.1:28741";
+pub const DEFAULT_PUBLIC_BIND_ADDR: &str = "0.0.0.0:54871";
+pub const DEFAULT_ADMIN_BIND_ADDR: &str = "127.0.0.1:54872";
 const DEFAULT_DATABASE_PATH: &str = "/var/lib/aperip-nomos/aperip-nomos.rnmdb";
 const MIN_ADMIN_TOKEN_BYTES: usize = 32;
 const MAX_ADMIN_TOKEN_BYTES: usize = 256;
@@ -220,7 +220,7 @@ mod tests {
         let result = resolve_optional_environment(
             "ADMIN_BIND_ADDR",
             Err(VarError::NotUnicode("invalid".into())),
-            "127.0.0.1:28741",
+            "127.0.0.1:54872",
         );
 
         assert!(matches!(

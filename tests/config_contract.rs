@@ -17,8 +17,8 @@ fn valid_values(page_key_file: &str, admin_token_file: &str) -> ConfigValues {
 
 #[test]
 fn defaults_use_large_uncommon_ports() {
-    assert_eq!(DEFAULT_PUBLIC_BIND_ADDR, "0.0.0.0:28740");
-    assert_eq!(DEFAULT_ADMIN_BIND_ADDR, "127.0.0.1:28741");
+    assert_eq!(DEFAULT_PUBLIC_BIND_ADDR, "0.0.0.0:54871");
+    assert_eq!(DEFAULT_ADMIN_BIND_ADDR, "127.0.0.1:54872");
 }
 
 #[test]

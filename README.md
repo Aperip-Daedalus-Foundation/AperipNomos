@@ -4,22 +4,22 @@ AperipNomos is a small, self-hosted archive for publishing an organization's
 open-source license texts. One Rust process owns the encrypted RNMDB database
 and serves two isolated HTTP listeners:
 
-- public catalog: `28740`
-- administrator API: `28741`
+- public catalog: `54871`
+- administrator API: `54872`
 
 The backend is currently the active implementation phase. The public and
 administrator visual surfaces will be built after their layout is approved.
 
 ## Backend API
 
-Public listener (`28740`):
+Public listener (`54871`):
 
 - `GET /health/live`
 - `GET /health/ready`
 - `GET /api/licenses`
 - `GET /api/licenses/{slug}`
 
-Administrator listener (`28741`):
+Administrator listener (`54872`):
 
 - `GET /health/live`
 - `GET /health/ready`
@@ -67,8 +67,8 @@ Build and start the service:
 docker compose up --build -d --wait --wait-timeout 120
 ```
 
-The public catalog is available at `http://localhost:28740`. The administrator
-listener is published to host loopback only at `http://127.0.0.1:28741` by
+The public catalog is available at `http://localhost:54871`. The administrator
+listener is published to host loopback only at `http://127.0.0.1:54872` by
 default, though peer containers on the Compose network can still reach its
 container address. Override `PUBLIC_PORT`, `ADMIN_PORT`, or `ADMIN_HOST` in
 `.env` when needed. Setting `ADMIN_HOST` to a non-loopback address exposes a
@@ -88,8 +88,8 @@ docker compose logs --tail 200 app
 The same secret files can be used for a local process:
 
 ```powershell
-$env:PUBLIC_BIND_ADDR = '127.0.0.1:28740'
-$env:ADMIN_BIND_ADDR = '127.0.0.1:28741'
+$env:PUBLIC_BIND_ADDR = '127.0.0.1:54871'
+$env:ADMIN_BIND_ADDR = '127.0.0.1:54872'
 $env:RNMDB_PATH = "$PWD/data/aperip-nomos.rnmdb"
 $env:RNMDB_PAGE_KEY_FILE = "$PWD/secrets/rnmdb_page_key"
 $env:ADMIN_TOKEN_FILE = "$PWD/secrets/admin_token"
@@ -112,18 +112,18 @@ try {
     "header = `"Authorization: Bearer $token`""
     'form = "title=MIT License"'
     "form = `"file=@$sampleLicenseForCurl;type=text/plain`""
-    'url = "http://127.0.0.1:28741/api/admin/licenses"'
+    'url = "http://127.0.0.1:54872/api/admin/licenses"'
   ) | Set-Content -Encoding ascii $curlConfig
   curl.exe --config $curlConfig
-  curl.exe -fsS http://127.0.0.1:28740/api/licenses
-  curl.exe -fsS http://127.0.0.1:28740/api/licenses/mit
+  curl.exe -fsS http://127.0.0.1:54871/api/licenses
+  curl.exe -fsS http://127.0.0.1:54871/api/licenses/mit
   @(
     'silent'
     'show-error'
     'fail'
     'request = "DELETE"'
     "header = `"Authorization: Bearer $token`""
-    'url = "http://127.0.0.1:28741/api/admin/licenses/mit"'
+    'url = "http://127.0.0.1:54872/api/admin/licenses/mit"'
   ) | Set-Content -Encoding ascii $curlConfig
   curl.exe --config $curlConfig
 } finally {

@@ -8,20 +8,20 @@ services:
       dockerfile: Dockerfile
       target: runtime
     environment:
-      PUBLIC_BIND_ADDR: 0.0.0.0:28740
-      ADMIN_BIND_ADDR: 0.0.0.0:28741
+      PUBLIC_BIND_ADDR: 0.0.0.0:54871
+      ADMIN_BIND_ADDR: 0.0.0.0:54872
       RNMDB_PATH: /var/lib/aperip-nomos/aperip-nomos.rnmdb
       RNMDB_PAGE_KEY_FILE: /run/secrets/rnmdb_page_key
       ADMIN_TOKEN_FILE: /run/secrets/admin_token
       RUST_LOG: ${RUST_LOG:-aperip_nomos=info,tower_http=info}
     ports:
       - name: public-http
-        target: 28740
-        published: "${PUBLIC_PORT:-28740}"
+        target: 54871
+        published: "${PUBLIC_PORT:-54871}"
         protocol: tcp
       - name: admin-http
-        target: 28741
-        published: "${ADMIN_PORT:-28741}"
+        target: 54872
+        published: "${ADMIN_PORT:-54872}"
         host_ip: ${ADMIN_HOST:-127.0.0.1}
         protocol: tcp
     volumes:
@@ -55,7 +55,7 @@ services:
         - --fail
         - --silent
         - --show-error
-        - http://127.0.0.1:28740/health/ready
+        - http://127.0.0.1:54871/health/ready
       interval: 10s
       timeout: 5s
       retries: 6
