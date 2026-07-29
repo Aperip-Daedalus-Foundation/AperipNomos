@@ -7,13 +7,17 @@ and serves two isolated HTTP listeners:
 - public catalog: `54871`
 - administrator API: `54872`
 
-The backend is currently the active implementation phase. The public and
-administrator visual surfaces will be built after their layout is approved.
+The public listener serves a responsive license catalog and individual license
+pages. The loopback-only administrator listener serves the upload and deletion
+interface. Both interfaces are embedded in the Rust binary and use the same
+JSON APIs documented below; no Node.js build or runtime is required.
 
 ## Backend API
 
 Public listener (`54871`):
 
+- `GET /`
+- `GET /licenses/{slug}`
 - `GET /health/live`
 - `GET /health/ready`
 - `GET /api/licenses`
@@ -21,6 +25,7 @@ Public listener (`54871`):
 
 Administrator listener (`54872`):
 
+- `GET /`
 - `GET /health/live`
 - `GET /health/ready`
 - `GET /api/admin/licenses`
@@ -67,13 +72,25 @@ Build and start the service:
 docker compose up --build -d --wait --wait-timeout 120
 ```
 
-The public catalog is available at `http://localhost:54871`. The administrator
-listener is published to host loopback only at `http://127.0.0.1:54872` by
+The public catalog is available at `http://localhost:54871`. Select a published
+license to open its individual page. The administrator interface is published
+to host loopback only at `http://127.0.0.1:54872` by
 default, though peer containers on the Compose network can still reach its
 container address. Override `PUBLIC_PORT`, `ADMIN_PORT`, or `ADMIN_HOST` in
 `.env` when needed. Setting `ADMIN_HOST` to a non-loopback address exposes a
 plaintext bearer-token API; only do so behind TLS and explicit network access
 controls.
+
+The administrator page asks for the token stored in `secrets/admin_token`. The
+browser keeps it in memory only, so a reload or the **Lock** action clears the
+session. For a remote deployment, keep port 54872 private and use an SSH tunnel
+instead of publishing it:
+
+```powershell
+ssh -L 54872:127.0.0.1:54872 root@your-server
+```
+
+Then open `http://127.0.0.1:54872` locally.
 
 The `--wait` option requires Docker Compose 2.20 or newer. If startup fails,
 inspect the health and logs before retrying:

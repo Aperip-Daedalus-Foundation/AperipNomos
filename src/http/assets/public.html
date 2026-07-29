@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="AperipNomos published open-source license archive.">
+    <meta name="theme-color" content="#F5F7F5">
+    <title>AperipNomos — License archive</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/app.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#catalog">Skip to the license archive</a>
+
+    <div class="site-shell">
+      <header class="masthead">
+        <div class="page-width masthead-grid">
+          <div class="identity-block">
+            <p class="eyebrow">Open-source license archive</p>
+            <a class="wordmark" href="/" aria-label="AperipNomos home">AperipNomos</a>
+          </div>
+          <p class="masthead-description">
+            A public register of the licenses published by this organization.
+          </p>
+        </div>
+      </header>
+
+      <main id="catalog" class="page-width page-main" tabindex="-1">
+        <section aria-labelledby="catalog-heading">
+          <div class="section-heading">
+            <p class="section-index" aria-hidden="true">Register / 01</p>
+            <div>
+              <h1 id="catalog-heading">Published licenses</h1>
+              <p class="section-note">Browse by title, slug, or source filename.</p>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="field filter-field">
+              <label for="license-filter">Filter the register</label>
+              <input
+                id="license-filter"
+                name="license-filter"
+                type="search"
+                inputmode="search"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Title, slug, or source filename"
+                disabled
+              >
+            </div>
+            <p id="license-count" class="result-count" aria-live="polite">0 licenses</p>
+          </div>
+
+          <div
+            id="catalog-status"
+            class="status-line"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            Loading the license register…
+          </div>
+
+          <div id="license-list" class="license-list" aria-busy="true">
+            <p class="empty-state">Loading published licenses…</p>
+          </div>
+        </section>
+
+        <noscript>
+          <p class="notice notice-error">
+            JavaScript is required to load the published license register.
+          </p>
+        </noscript>
+      </main>
+
+      <footer class="site-footer">
+        <div class="page-width footer-rule">
+          <span>AperipNomos</span>
+          <span>Published license records</span>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module" src="/assets/public.js"></script>
+  </body>
+</html>

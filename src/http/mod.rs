@@ -1,4 +1,5 @@
 mod admin;
+mod assets;
 mod error;
 mod public;
 

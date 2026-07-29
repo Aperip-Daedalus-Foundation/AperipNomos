@@ -10,8 +10,8 @@ use tracing::Level;
 use crate::store::LicenseStore;
 
 use super::{
-    ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, store_health,
-    store_operation,
+    ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, assets,
+    store_health, store_operation,
 };
 
 #[derive(Debug, Serialize)]
@@ -21,6 +21,12 @@ pub(super) struct HealthResponse {
 
 pub(super) fn router(store: LicenseStore) -> Router {
     Router::new()
+        .route("/", get(assets::public_home))
+        .route("/licenses/{slug}", get(assets::public_detail))
+        .route("/assets/app.css", get(assets::stylesheet))
+        .route("/assets/public.js", get(assets::public_script))
+        .route("/assets/detail.js", get(assets::detail_script))
+        .route("/favicon.svg", get(assets::favicon))
         .route("/health/live", get(live))
         .route("/health/ready", get(ready))
         .route("/api/licenses", get(list))

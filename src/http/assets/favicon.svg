@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">AperipNomos registry mark</title>
+  <rect width="64" height="64" fill="#F5F7F5"/>
+  <rect x="7" y="7" width="50" height="50" fill="none" stroke="#151A17" stroke-width="3"/>
+  <path d="M19 8v48" fill="none" stroke="#0B6B57" stroke-width="5"/>
+  <path d="M29 21h19M29 32h19M29 43h13" fill="none" stroke="#151A17" stroke-width="3" stroke-linecap="square"/>
+</svg>

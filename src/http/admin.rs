@@ -18,7 +18,7 @@ use crate::{
 };
 
 use super::{
-    ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, public,
+    ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, assets, public,
     store_health, store_operation,
 };
 
@@ -50,6 +50,10 @@ pub(super) fn router(store: LicenseStore, admin_token: String) -> Router {
         .route_layer(middleware::from_fn_with_state(state.clone(), authorize));
 
     Router::new()
+        .route("/", get(assets::admin_home))
+        .route("/assets/app.css", get(assets::stylesheet))
+        .route("/assets/admin.js", get(assets::admin_script))
+        .route("/favicon.svg", get(assets::favicon))
         .route("/health/live", get(public::live))
         .route("/health/ready", get(ready))
         .merge(protected)
