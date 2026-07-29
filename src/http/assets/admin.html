@@ -14,30 +14,22 @@
     <div class="site-shell">
       <header class="masthead masthead-compact">
         <div class="page-width masthead-grid">
-          <div class="identity-block">
-            <p class="eyebrow">Restricted registry</p>
-            <a class="wordmark" href="/" aria-label="AperipNomos administrator home">AperipNomos</a>
-          </div>
-          <p class="masthead-description">Publish and remove the archive's license records.</p>
+          <a class="wordmark" href="/" aria-label="AperipNomos administrator home">AperipNomos Admin</a>
         </div>
       </header>
 
       <main class="page-width page-main" id="main-content" tabindex="-1">
         <section class="token-gate" id="token-gate" aria-labelledby="token-gate-title">
           <div class="section-heading">
-            <p class="section-index" aria-hidden="true">Administrator / Access</p>
-            <div>
-              <h1 id="token-gate-title">Unlock the license manager</h1>
-              <p id="token-help" class="section-note">
-                Enter the administrator token for this session. The page clears it when you lock
-                the manager or close the tab.
-              </p>
-            </div>
+            <h1 id="token-gate-title">Administrator</h1>
+            <p id="token-help" class="section-note">
+              The token is kept in memory until you lock or reload.
+            </p>
           </div>
 
           <form id="token-form" autocomplete="off" aria-describedby="token-help token-error">
             <div class="field">
-              <label for="admin-token">Administrator token <span aria-hidden="true">*</span></label>
+              <label for="admin-token">Admin token <span aria-hidden="true">*</span></label>
               <input
                 id="admin-token"
                 name="admin-token"
@@ -49,7 +41,7 @@
                 spellcheck="false"
               >
             </div>
-            <button type="submit">Unlock manager</button>
+            <button type="submit">Unlock</button>
           </form>
           <p id="token-error" class="status-line" aria-live="assertive"></p>
         </section>
@@ -57,11 +49,10 @@
         <section id="manager" class="manager" aria-labelledby="manager-title" hidden>
           <header class="manager-toolbar">
             <div>
-              <p class="eyebrow">Authenticated session</p>
-              <h1 id="manager-title">License manager</h1>
+              <h1 id="manager-title">Licenses</h1>
             </div>
             <div class="manager-actions">
-              <button id="lock-admin" class="button button-secondary" type="button">Lock manager</button>
+              <button id="lock-admin" class="button button-secondary" type="button">Lock</button>
             </div>
           </header>
 
@@ -70,11 +61,10 @@
           <section class="admin-section" aria-labelledby="upload-heading">
             <header class="admin-section-heading">
               <div>
-                <p class="eyebrow">New record</p>
-                <h2 id="upload-heading">Publish a license</h2>
+                <h2 id="upload-heading">Upload license</h2>
               </div>
               <p id="upload-help" class="section-note">
-                Select a non-empty UTF-8 text file up to 1 MiB. Title and slug are optional.
+                UTF-8 text or Markdown, up to 1 MiB.
               </p>
             </header>
 
@@ -87,7 +77,7 @@
               <div class="form-grid">
                 <div class="field field-wide">
                   <label for="license-file">License file <span aria-hidden="true">*</span></label>
-                  <input id="license-file" name="file" type="file" accept="text/plain" required>
+                  <input id="license-file" name="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown" required>
                 </div>
                 <div class="field">
                   <label for="upload-title">Title <span class="field-note">Optional</span></label>
@@ -107,7 +97,7 @@
                 </div>
               </div>
               <div class="form-actions">
-                <button type="submit">Publish license</button>
+                <button type="submit">Upload</button>
               </div>
             </form>
             <p id="upload-status" class="status-line" role="status" aria-live="polite"></p>
@@ -116,8 +106,7 @@
           <section class="admin-section" aria-labelledby="registry-heading">
             <header class="admin-section-heading">
               <div>
-                <p class="eyebrow">Published records</p>
-                <h2 id="registry-heading">Registry</h2>
+                <h2 id="registry-heading">Licenses</h2>
               </div>
               <p id="admin-count" class="result-count" role="status" aria-live="polite">0 licenses</p>
             </header>
@@ -138,22 +127,20 @@
 
       <footer class="site-footer">
         <div class="page-width footer-rule">
-          <span>AperipNomos</span>
-          <span>Administrator registry</span>
+          <small>Copyright (C) 2026 Aperip Daedalus Foundation. All rights reserved.</small>
         </div>
       </footer>
     </div>
 
     <dialog id="delete-dialog" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description delete-license-name delete-status">
       <form method="dialog" class="dialog-content">
-        <p class="eyebrow">Permanent action</p>
         <h2 id="delete-dialog-title">Delete this license?</h2>
-        <p id="delete-dialog-description">This removes the record from the published archive.</p>
+        <p id="delete-dialog-description">This cannot be undone.</p>
         <p id="delete-license-name" class="delete-license-name"></p>
         <p id="delete-status" class="status-line" role="alert" aria-live="assertive"></p>
         <div class="dialog-actions">
           <button id="cancel-delete" class="button button-secondary" type="button">Cancel</button>
-          <button id="confirm-delete" class="button button-danger" type="button">Delete license</button>
+          <button id="confirm-delete" class="button button-danger" type="button">Delete</button>
         </div>
       </form>
     </dialog>

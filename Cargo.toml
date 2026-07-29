@@ -7,9 +7,11 @@ publish = false
 [dependencies]
 axum = { version = "0.8", features = ["json", "multipart", "tokio"] }
 base64 = "0.22"
+ammonia = "4"
 fs2 = "0.4"
 hex = "0.4"
 http = "1"
+pulldown-cmark = "0.13"
 rnmdb-cli = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }
 rnmdb-common = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }
 rnmdb-storage = { git = "https://github.com/czxieddan/RNovModularDB.git", rev = "013ec2f48a1dab89997430d72c2b176be2c29d47" }

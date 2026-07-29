@@ -3,24 +3,21 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Published open-source license record from AperipNomos.">
+    <meta name="description" content="Open-source license published by Aperip Daedalus Foundation.">
     <meta name="theme-color" content="#F5F7F5">
-    <title>License record — AperipNomos</title>
+    <title>License — AperipNomos</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/app.css">
   </head>
   <body>
-    <a class="skip-link" href="#license-record">Skip to the license record</a>
+    <a class="skip-link" href="#license-record">Skip to license</a>
 
     <div class="site-shell">
       <header class="masthead masthead-compact">
         <div class="page-width masthead-grid">
-          <div class="identity-block">
-            <p class="eyebrow">Open-source license archive</p>
-            <a class="wordmark" href="/" aria-label="AperipNomos home">AperipNomos</a>
-          </div>
-          <nav class="archive-nav" aria-label="Archive">
-            <a class="back-link" href="/"><span aria-hidden="true">←</span> All licenses</a>
+          <a class="wordmark" href="/" aria-label="AperipNomos home">AperipNomos</a>
+          <nav class="archive-nav" aria-label="Licenses">
+            <a class="back-link" href="/"><span aria-hidden="true">←</span> Back to licenses</a>
           </nav>
         </div>
       </header>
@@ -33,59 +30,52 @@
           aria-live="polite"
           aria-atomic="true"
         >
-          Loading the license record…
+          Loading…
         </div>
 
         <article id="detail-content" class="license-detail" hidden>
           <header class="detail-heading">
-            <p class="section-index">License record</p>
             <h1 id="license-title">License</h1>
-            <p class="detail-slug"><span class="meta-label">Slug</span> <code id="license-slug"></code></p>
           </header>
 
           <dl class="detail-metadata">
             <div>
-              <dt>Source file</dt>
+              <dt>File</dt>
               <dd id="license-source"></dd>
             </div>
             <div>
-              <dt>Uploaded</dt>
+              <dt>Published</dt>
               <dd id="license-uploaded"></dd>
             </div>
             <div class="metadata-wide">
-              <dt>SHA-256 digest</dt>
+              <dt>SHA-256</dt>
               <dd><code id="license-digest"></code></dd>
             </div>
           </dl>
 
-          <section class="license-text" aria-labelledby="license-text-heading">
+          <section class="license-text" aria-label="License text">
             <div class="license-text-toolbar">
-              <div>
-                <p class="section-index" aria-hidden="true">Document / Full text</p>
-                <h2 id="license-text-heading">License text</h2>
-              </div>
               <div class="copy-control">
                 <button id="copy-license" class="button button-secondary" type="button" disabled>
-                  Copy license text
+                  Copy
                 </button>
                 <span id="copy-status" class="copy-status" role="status" aria-live="polite"></span>
               </div>
             </div>
-            <pre id="license-body" tabindex="0" aria-label="Full license text"></pre>
+            <div id="license-body" class="license-body"></div>
           </section>
         </article>
 
         <noscript>
           <p class="notice notice-error">
-            JavaScript is required to load this license record.
+            JavaScript is required to load this license.
           </p>
         </noscript>
       </main>
 
       <footer class="site-footer">
         <div class="page-width footer-rule">
-          <a href="/">Return to the archive</a>
-          <span>AperipNomos</span>
+          <small>Copyright (C) 2026 Aperip Daedalus Foundation. All rights reserved.</small>
         </div>
       </footer>
     </div>

@@ -23,23 +23,6 @@ function licenseCountLabel(visible, total) {
   return `${visible} of ${total} ${noun}`;
 }
 
-function metadataPair(label, value, code = false) {
-  const wrapper = document.createElement("div");
-  const term = document.createElement("dt");
-  const description = document.createElement("dd");
-
-  term.textContent = label;
-  if (code) {
-    const codeNode = document.createElement("code");
-    codeNode.textContent = value;
-    description.append(codeNode);
-  } else {
-    description.textContent = value;
-  }
-  wrapper.append(term, description);
-  return wrapper;
-}
-
 function detailPath(slug) {
   return `/licenses/${encodeURIComponent(slug)}`;
 }
@@ -49,10 +32,6 @@ function licenseRow(license) {
   const headingGroup = document.createElement("div");
   const heading = document.createElement("h2");
   const link = document.createElement("a");
-  const slug = document.createElement("p");
-  const slugLabel = document.createElement("span");
-  const slugValue = document.createElement("code");
-  const metadata = document.createElement("dl");
 
   article.className = "license-row";
   headingGroup.className = "license-row-heading";
@@ -62,19 +41,8 @@ function licenseRow(license) {
   link.textContent = license.title;
   heading.append(link);
 
-  slug.className = "license-row-slug";
-  slugLabel.className = "meta-label";
-  slugLabel.textContent = "Slug";
-  slugValue.textContent = license.slug;
-  slug.append(slugLabel, document.createTextNode(" "), slugValue);
-  headingGroup.append(heading, slug);
-
-  metadata.className = "license-row-metadata";
-  metadata.append(
-    metadataPair("Source file", license.source_filename),
-    metadataPair("SHA-256", license.sha256, true),
-  );
-  article.append(headingGroup, metadata);
+  headingGroup.append(heading);
+  article.append(headingGroup);
   return article;
 }
 
@@ -104,8 +72,8 @@ function renderLicenses() {
   countNode.textContent = licenseCountLabel(visible.length, licenses.length);
   if (visible.length === 0) {
     const message = licenses.length === 0
-      ? "No licenses have been published yet."
-      : "No published licenses match this filter.";
+      ? "No licenses."
+      : "No matching licenses.";
     fragment.append(emptyMessage(message));
   } else {
     visible.forEach((license) => fragment.append(licenseRow(license)));
@@ -130,7 +98,8 @@ function errorNotice() {
   const retry = document.createElement("button");
 
   notice.className = "notice notice-error";
-  message.textContent = "The license archive is unavailable right now.";
+  notice.setAttribute("role", "status");
+  message.textContent = "Could not load licenses.";
   retry.className = "button button-secondary";
   retry.type = "button";
   retry.textContent = "Try again";
@@ -144,9 +113,9 @@ function errorNotice() {
 async function loadCatalog() {
   filterInput.disabled = true;
   listNode.setAttribute("aria-busy", "true");
-  listNode.replaceChildren(emptyMessage("Loading published licenses…"));
-  countNode.textContent = "0 licenses";
-  setCatalogStatus("Loading the license register…");
+  listNode.replaceChildren();
+  countNode.textContent = "";
+  setCatalogStatus("Loading…");
 
   try {
     const response = await fetch("/api/licenses", {
@@ -164,15 +133,12 @@ async function loadCatalog() {
     licenses = payload.licenses;
     filterInput.disabled = false;
     renderLicenses();
-    setCatalogStatus(
-      licenses.length === 0 ? "The register is currently empty." : "The license register is ready.",
-      "status-success",
-    );
+    setCatalogStatus("");
   } catch (_error) {
     licenses = [];
-    countNode.textContent = "Unavailable";
+    countNode.textContent = "";
     listNode.replaceChildren(errorNotice());
-    setCatalogStatus("The license register could not be loaded. Try again.", "status-error");
+    setCatalogStatus("");
   } finally {
     listNode.setAttribute("aria-busy", "false");
   }

@@ -103,6 +103,9 @@ fn assert_ids(source: &str, ids: &[&str]) {
 fn assert_safe_javascript(source: &str) {
     for forbidden in [
         "innerHTML",
+        "outerHTML",
+        "insertAdjacentHTML",
+        "srcdoc",
         "localStorage",
         "sessionStorage",
         "document.cookie",
@@ -193,7 +196,6 @@ async fn public_assets_use_real_api_and_safe_dom_rendering() {
         &detail_html,
         &[
             "license-title",
-            "license-slug",
             "license-source",
             "license-digest",
             "license-uploaded",
@@ -219,6 +221,10 @@ async fn public_assets_use_real_api_and_safe_dom_rendering() {
     assert!(detail_javascript.contains("decodeURIComponent"));
     assert!(detail_javascript.contains("Intl.DateTimeFormat"));
     assert!(detail_javascript.contains("navigator.clipboard.writeText"));
+    assert!(detail_javascript.contains("DOMParser"));
+    assert!(detail_javascript.contains("rendered_html"));
+    assert!(detail_javascript.contains("replaceChildren"));
+    assert!(detail_javascript.contains("body_format === undefined"));
     assert!(detail_javascript.contains("createElement"));
     assert!(detail_javascript.contains("textContent"));
     assert_safe_javascript(&detail_javascript);
@@ -265,6 +271,7 @@ async fn admin_assets_keep_token_in_memory_and_use_real_api() {
     assert!(admin_html.contains("<noscript"));
     assert!(admin_html.contains("aria-live="));
     assert!(admin_html.contains("/assets/admin.js"));
+    assert!(admin_html.contains(".txt,.md,.markdown,text/plain,text/markdown"));
 
     assert!(admin_javascript.contains("let adminToken = \"\""));
     assert!(admin_javascript.contains("/api/admin/licenses"));

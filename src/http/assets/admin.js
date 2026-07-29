@@ -33,7 +33,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 tokenForm.addEventListener("submit", unlockManager);
-lockAdminButton.addEventListener("click", () => lockManager("Manager locked."));
+lockAdminButton.addEventListener("click", () => lockManager("Locked."));
 uploadForm.addEventListener("submit", uploadLicense);
 cancelDelete.addEventListener("click", () => deleteDialog.close("cancel"));
 confirmDelete.addEventListener("click", deleteLicense);
@@ -90,7 +90,7 @@ async function unlockManager(event) {
         return;
       }
       clearToken();
-      setText(tokenError, response.status === 401 ? "That token was not accepted." : message);
+      setText(tokenError, response.status === 401 ? "Invalid token." : message);
       focusTokenAfterCleanup = true;
       return;
     }
@@ -103,7 +103,7 @@ async function unlockManager(event) {
     tokenGate.hidden = true;
     manager.hidden = false;
     setText(tokenError, "");
-    setText(adminStatus, "Manager unlocked.");
+    setText(adminStatus, "");
     lockAdminButton.focus();
   } catch {
     if (isCurrentSessionOperation(epoch, operationId, unlockOperationId)) {
@@ -113,7 +113,7 @@ async function unlockManager(event) {
     }
   } finally {
     if (isCurrentOperation(epoch, operationId, unlockOperationId)) {
-      setFormBusy(tokenForm, false, "Unlock manager");
+      setFormBusy(tokenForm, false, "Unlock");
       if (focusTokenAfterCleanup) {
         tokenInput.focus();
       }
@@ -131,8 +131,8 @@ function lockManager(message) {
   pendingDeleteSlug = "";
   tokenForm.reset();
   uploadForm.reset();
-  setFormBusy(tokenForm, false, "Unlock manager");
-  setFormBusy(uploadForm, false, "Publish license");
+  setFormBusy(tokenForm, false, "Unlock");
+  setFormBusy(uploadForm, false, "Upload");
   adminList.setAttribute("aria-busy", "false");
   setDeleteBusy(false);
   if (deleteDialog.open) {
@@ -168,8 +168,8 @@ async function uploadLicense(event) {
 
   const epoch = sessionEpoch;
   const operationId = ++uploadOperationId;
-  setText(uploadStatus, "Publishing license…");
-  setFormBusy(uploadForm, true, "Publishing…");
+  setText(uploadStatus, "Uploading…");
+  setFormBusy(uploadForm, true, "Uploading…");
 
   try {
     const response = await authenticatedRequest("/api/admin/licenses", {
@@ -193,15 +193,15 @@ async function uploadLicense(event) {
     }
 
     uploadForm.reset();
-    setText(uploadStatus, `Published ${file.name}.`);
-    await refreshLicenses(epoch, "Registry refreshed after upload.");
+    setText(uploadStatus, `Uploaded ${file.name}.`);
+    await refreshLicenses(epoch, "");
   } catch {
     if (isCurrentSessionOperation(epoch, operationId, uploadOperationId)) {
       setText(uploadStatus, "The upload could not be completed. Check the connection and try again.");
     }
   } finally {
     if (isCurrentSessionOperation(epoch, operationId, uploadOperationId)) {
-      setFormBusy(uploadForm, false, "Publish license");
+      setFormBusy(uploadForm, false, "Upload");
     }
   }
 }
@@ -219,7 +219,7 @@ async function refreshLicenses(epoch, successMessage) {
   }
   const operationId = ++refreshOperationId;
   adminList.setAttribute("aria-busy", "true");
-  setText(adminStatus, "Refreshing registry…");
+  setText(adminStatus, "Loading…");
 
   try {
     const response = await authenticatedRequest("/api/admin/licenses", { method: "GET" });
@@ -265,7 +265,7 @@ function renderLicenses(licenses) {
   if (licenses.length === 0) {
     const empty = document.createElement("li");
     empty.className = "empty-state";
-    empty.textContent = "No licenses have been published.";
+    empty.textContent = "No licenses.";
     adminList.append(empty);
     return;
   }
@@ -282,8 +282,8 @@ function createLicenseRow(license) {
 
   const content = document.createElement("div");
   content.className = "license-row-heading";
-  const title = safeText(license.title, "Untitled license");
-  const slug = safeText(license.slug, "");
+  const title = license.title;
+  const slug = license.slug;
 
   const heading = document.createElement("h3");
   heading.className = "license-row-title";
@@ -292,9 +292,9 @@ function createLicenseRow(license) {
 
   const metadata = document.createElement("dl");
   metadata.className = "license-row-metadata";
-  appendMetadata(metadata, "Slug", slug || "Unavailable");
-  appendMetadata(metadata, "Source", safeText(license.source_filename, "Unavailable"));
-  appendMetadata(metadata, "Uploaded", formatUploadDate(license.uploaded_at_ms));
+  appendMetadata(metadata, "Slug", slug);
+  appendMetadata(metadata, "File", license.source_filename);
+  appendMetadata(metadata, "Published", formatUploadDate(license.uploaded_at_ms));
   content.append(metadata);
   item.append(content);
 
@@ -323,7 +323,7 @@ function appendMetadata(list, label, value) {
 
 function formatUploadDate(value) {
   const date = new Date(Number(value));
-  return Number.isNaN(date.getTime()) ? "Unknown" : dateFormatter.format(date);
+  return dateFormatter.format(date);
 }
 
 function openDeleteDialog(slug, title, trigger) {
@@ -373,7 +373,7 @@ async function deleteLicense() {
 
     deleteDialog.close("deleted");
     setText(adminStatus, `Deleted ${title}.`);
-    await refreshLicenses(epoch, "Registry refreshed after deletion.");
+    await refreshLicenses(epoch, "");
   } catch {
     if (isCurrentSessionOperation(epoch, operationId, deleteOperationId)) {
       setText(deleteStatus, "The deletion could not be completed. Check the connection and try again.");
@@ -422,10 +422,25 @@ async function authenticatedRequest(path, options) {
 
 async function licenseListFrom(response) {
   const payload = await response.json();
-  if (!payload || !Array.isArray(payload.licenses)) {
+  if (!payload || !Array.isArray(payload.licenses) || !payload.licenses.every(validLicenseSummary)) {
     throw new Error("Invalid administrator response");
   }
-  return payload.licenses.filter((license) => license && typeof license === "object");
+  return payload.licenses;
+}
+
+function validLicenseSummary(value) {
+  return value !== null
+    && typeof value === "object"
+    && Number.isSafeInteger(value.id)
+    && typeof value.slug === "string"
+    && value.slug.length > 0
+    && typeof value.title === "string"
+    && value.title.length > 0
+    && typeof value.source_filename === "string"
+    && value.source_filename.length > 0
+    && typeof value.sha256 === "string"
+    && Number.isSafeInteger(value.uploaded_at_ms)
+    && !Number.isNaN(new Date(value.uploaded_at_ms).getTime());
 }
 
 async function apiErrorMessage(response, fallback) {
@@ -462,10 +477,6 @@ function isCurrentOperation(epoch, operationId, currentOperationId) {
 
 function isCurrentSessionOperation(epoch, operationId, currentOperationId) {
   return isCurrentSession(epoch) && operationId === currentOperationId;
-}
-
-function safeText(value, fallback) {
-  return typeof value === "string" && value.length > 0 ? value : fallback;
 }
 
 function setText(element, message) {

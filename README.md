@@ -35,7 +35,11 @@ Administrator listener (`54872`):
 Every administrator API request requires `Authorization: Bearer <token>`.
 Uploads use `multipart/form-data` with a required `file` field and optional
 `title` and `slug` fields. License files must be non-empty UTF-8 text no larger
-than 1 MiB. An existing slug is never overwritten.
+than 1 MiB. Files ending in `.md` or `.markdown` are rendered as Markdown;
+other filenames retain plain-text formatting. The detail API returns the
+unaltered `body` for exact copying together with `body_format` and a sanitized
+`rendered_html` value for Markdown files. Raw HTML, images, relative URLs, and
+non-web URL schemes are not rendered. An existing slug is never overwritten.
 
 ## Run With Docker
 

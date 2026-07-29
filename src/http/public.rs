@@ -67,7 +67,7 @@ async fn detail(
 ) -> Result<Json<LicenseResponse>, ApiError> {
     let license = store_operation(store.get(&slug)).await?;
     Ok(Json(LicenseResponse {
-        license: LicenseDetail::from(license),
+        license: LicenseDetail::from_document(license).await?,
     }))
 }
 

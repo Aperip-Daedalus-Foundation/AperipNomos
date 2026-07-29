@@ -31,7 +31,7 @@ async fn request(app: &Router, request: Request<Body>) -> axum::response::Respon
 fn multipart_upload(token: Option<&str>) -> Request<Body> {
     let boundary = "aperip-nomos-test-boundary";
     let body = format!(
-        "--{boundary}\r\nContent-Disposition: form-data; name=\"title\"\r\n\r\nMIT License\r\n--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"MIT.txt\"\r\nContent-Type: text/plain\r\n\r\nPermission is hereby granted.\r\n--{boundary}--\r\n"
+        "--{boundary}\r\nContent-Disposition: form-data; name=\"title\"\r\n\r\nMIT License\r\n--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"MIT.md\"\r\nContent-Type: text/markdown\r\n\r\nPermission is hereby granted.\r\n--{boundary}--\r\n"
     );
     let mut builder = Request::builder()
         .method("POST")
@@ -84,6 +84,11 @@ async fn isolates_admin_mutations_and_publishes_uploaded_license() {
     let created_json = json(created).await;
     assert_eq!(created_json["license"]["slug"], "mit");
     assert_eq!(created_json["license"]["title"], "MIT License");
+    assert_eq!(created_json["license"]["body_format"], "markdown");
+    assert_eq!(
+        created_json["license"]["rendered_html"],
+        "<p>Permission is hereby granted.</p>\n"
+    );
 
     let duplicate = request(&admin, multipart_upload(Some(ADMIN_TOKEN))).await;
     assert_eq!(duplicate.status(), StatusCode::CONFLICT);
@@ -98,9 +103,15 @@ async fn isolates_admin_mutations_and_publishes_uploaded_license() {
     )
     .await;
     assert_eq!(detail.status(), StatusCode::OK);
+    let detail_json = json(detail).await;
     assert_eq!(
-        json(detail).await["license"]["body"],
+        detail_json["license"]["body"],
         "Permission is hereby granted."
+    );
+    assert_eq!(detail_json["license"]["body_format"], "markdown");
+    assert_eq!(
+        detail_json["license"]["rendered_html"],
+        "<p>Permission is hereby granted.</p>\n"
     );
 
     let deleted = request(

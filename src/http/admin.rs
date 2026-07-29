@@ -19,7 +19,7 @@ use crate::{
 
 use super::{
     ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, assets, public,
-    store_health, store_operation,
+    render_document_markdown, store_health, store_operation,
 };
 
 const MULTIPART_FRAMING_ALLOWANCE: usize = 64 * 1024;
@@ -121,11 +121,12 @@ async fn create(
         &bytes,
         uploaded_at_ms,
     )?;
+    render_document_markdown(draft.source_filename(), draft.sha256(), draft.body()).await?;
     let license = store_operation(state.store.create(draft)).await?;
     Ok((
         StatusCode::CREATED,
         Json(LicenseResponse {
-            license: LicenseDetail::from(license),
+            license: LicenseDetail::from_document(license).await?,
         }),
     ))
 }
