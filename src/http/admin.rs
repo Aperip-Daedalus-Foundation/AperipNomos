@@ -9,7 +9,8 @@ use axum::{
 };
 use sha2::{Digest, Sha256};
 use subtle::ConstantTimeEq;
-use tower_http::trace::TraceLayer;
+use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
+use tracing::Level;
 
 use crate::{
     domain::{LicenseDraft, LicenseValidationError, MAX_LICENSE_BYTES},
@@ -18,6 +19,7 @@ use crate::{
 
 use super::{
     ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, public,
+    store_health, store_operation,
 };
 
 const MULTIPART_FRAMING_ALLOWANCE: usize = 64 * 1024;
@@ -54,7 +56,15 @@ pub(super) fn router(store: LicenseStore, admin_token: String) -> Router {
         .fallback(not_found)
         .method_not_allowed_fallback(method_not_allowed)
         .layer(DefaultBodyLimit::max(MULTIPART_BODY_LIMIT))
-        .layer(TraceLayer::new_for_http())
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(
+                    DefaultMakeSpan::new()
+                        .level(Level::INFO)
+                        .include_headers(false),
+                )
+                .on_response(DefaultOnResponse::new().level(Level::INFO)),
+        )
         .with_state(state)
 }
 
@@ -81,15 +91,12 @@ fn bearer_token(headers: &axum::http::HeaderMap) -> Option<&str> {
 }
 
 async fn ready(State(state): State<AdminState>) -> Result<Json<public::HealthResponse>, ApiError> {
-    if state.store.is_ready() {
-        Ok(Json(public::HealthResponse { status: "ok" }))
-    } else {
-        Err(ApiError::service_unavailable())
-    }
+    store_health(&state.store).await?;
+    Ok(Json(public::HealthResponse { status: "ok" }))
 }
 
 async fn list(State(state): State<AdminState>) -> Result<Json<LicenseListResponse>, ApiError> {
-    let licenses = state.store.list().await?;
+    let licenses = store_operation(state.store.list()).await?;
     Ok(Json(LicenseListResponse {
         licenses: licenses.iter().map(LicenseSummary::from).collect(),
     }))
@@ -110,7 +117,7 @@ async fn create(
         &bytes,
         uploaded_at_ms,
     )?;
-    let license = state.store.create(draft).await?;
+    let license = store_operation(state.store.create(draft)).await?;
     Ok((
         StatusCode::CREATED,
         Json(LicenseResponse {
@@ -166,7 +173,7 @@ async fn remove(
     State(state): State<AdminState>,
     Path(slug): Path<String>,
 ) -> Result<StatusCode, ApiError> {
-    state.store.delete(&slug).await?;
+    store_operation(state.store.delete(&slug)).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 

@@ -4,11 +4,15 @@ use axum::{
     routing::get,
 };
 use serde::Serialize;
-use tower_http::trace::TraceLayer;
+use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
+use tracing::Level;
 
 use crate::store::LicenseStore;
 
-use super::{ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary};
+use super::{
+    ApiError, LicenseDetail, LicenseListResponse, LicenseResponse, LicenseSummary, store_health,
+    store_operation,
+};
 
 #[derive(Debug, Serialize)]
 pub(super) struct HealthResponse {
@@ -23,7 +27,15 @@ pub(super) fn router(store: LicenseStore) -> Router {
         .route("/api/licenses/{slug}", get(detail))
         .fallback(not_found)
         .method_not_allowed_fallback(method_not_allowed)
-        .layer(TraceLayer::new_for_http())
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(
+                    DefaultMakeSpan::new()
+                        .level(Level::INFO)
+                        .include_headers(false),
+                )
+                .on_response(DefaultOnResponse::new().level(Level::INFO)),
+        )
         .with_state(store)
 }
 
@@ -32,15 +44,12 @@ pub(super) async fn live() -> Json<HealthResponse> {
 }
 
 async fn ready(State(store): State<LicenseStore>) -> Result<Json<HealthResponse>, ApiError> {
-    if store.is_ready() {
-        Ok(Json(HealthResponse { status: "ok" }))
-    } else {
-        Err(ApiError::service_unavailable())
-    }
+    store_health(&store).await?;
+    Ok(Json(HealthResponse { status: "ok" }))
 }
 
 async fn list(State(store): State<LicenseStore>) -> Result<Json<LicenseListResponse>, ApiError> {
-    let licenses = store.list().await?;
+    let licenses = store_operation(store.list()).await?;
     Ok(Json(LicenseListResponse {
         licenses: licenses.iter().map(LicenseSummary::from).collect(),
     }))
@@ -50,7 +59,7 @@ async fn detail(
     State(store): State<LicenseStore>,
     Path(slug): Path<String>,
 ) -> Result<Json<LicenseResponse>, ApiError> {
-    let license = store.get(&slug).await?;
+    let license = store_operation(store.get(&slug)).await?;
     Ok(Json(LicenseResponse {
         license: LicenseDetail::from(license),
     }))

@@ -1,6 +1,8 @@
 use std::{fs, net::SocketAddr};
 
-use aperip_nomos::config::{ConfigError, ConfigValues, ServiceConfig};
+use aperip_nomos::config::{
+    ConfigError, ConfigValues, DEFAULT_ADMIN_BIND_ADDR, DEFAULT_PUBLIC_BIND_ADDR, ServiceConfig,
+};
 use tempfile::tempdir;
 
 fn valid_values(page_key_file: &str, admin_token_file: &str) -> ConfigValues {
@@ -11,6 +13,12 @@ fn valid_values(page_key_file: &str, admin_token_file: &str) -> ConfigValues {
         page_key_file: page_key_file.into(),
         admin_token_file: admin_token_file.into(),
     }
+}
+
+#[test]
+fn defaults_use_large_uncommon_ports() {
+    assert_eq!(DEFAULT_PUBLIC_BIND_ADDR, "0.0.0.0:28740");
+    assert_eq!(DEFAULT_ADMIN_BIND_ADDR, "127.0.0.1:28741");
 }
 
 #[test]
@@ -82,5 +90,22 @@ fn rejects_malformed_page_key_and_short_token() {
             admin_token.to_str().expect("UTF-8 path"),
         )),
         Err(ConfigError::InvalidAdminToken)
+    ));
+}
+
+#[test]
+fn rejects_oversized_secret_before_parsing() {
+    let directory = tempdir().expect("temporary directory");
+    let page_key = directory.path().join("page-key");
+    let admin_token = directory.path().join("admin-token");
+    fs::write(&page_key, "a".repeat(2048)).expect("oversized page key");
+    fs::write(&admin_token, "x".repeat(32)).expect("token");
+
+    assert!(matches!(
+        ServiceConfig::from_values(valid_values(
+            page_key.to_str().expect("UTF-8 path"),
+            admin_token.to_str().expect("UTF-8 path"),
+        )),
+        Err(ConfigError::SecretTooLarge { .. })
     ));
 }

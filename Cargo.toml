@@ -20,7 +20,7 @@ sha2 = "0.10"
 subtle = "2"
 thiserror = "2"
 time = "0.3"
-tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync"] }
+tokio = { version = "1", features = ["io-util", "macros", "net", "rt-multi-thread", "signal", "sync"] }
 tower-http = { version = "0.6", features = ["catch-panic", "compression-gzip", "limit", "request-id", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
@@ -29,4 +29,3 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 http-body-util = "0.1"
 tempfile = "3"
 tower = { version = "0.5", features = ["util"] }
-

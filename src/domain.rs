@@ -28,6 +28,16 @@ pub struct LicenseDocument {
     uploaded_at_ms: i64,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LicenseMetadata {
+    id: i64,
+    slug: String,
+    title: String,
+    source_filename: String,
+    sha256: String,
+    uploaded_at_ms: i64,
+}
+
 impl LicenseDraft {
     pub fn from_upload(
         filename: &str,
@@ -153,6 +163,45 @@ impl LicenseDocument {
     }
 }
 
+impl From<&LicenseDocument> for LicenseMetadata {
+    fn from(document: &LicenseDocument) -> Self {
+        Self {
+            id: document.id,
+            slug: document.slug.clone(),
+            title: document.title.clone(),
+            source_filename: document.source_filename.clone(),
+            sha256: document.sha256.clone(),
+            uploaded_at_ms: document.uploaded_at_ms,
+        }
+    }
+}
+
+impl LicenseMetadata {
+    pub fn id(&self) -> i64 {
+        self.id
+    }
+
+    pub fn slug(&self) -> &str {
+        &self.slug
+    }
+
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn source_filename(&self) -> &str {
+        &self.source_filename
+    }
+
+    pub fn sha256(&self) -> &str {
+        &self.sha256
+    }
+
+    pub fn uploaded_at_ms(&self) -> i64 {
+        self.uploaded_at_ms
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 pub enum LicenseValidationError {
     #[error("the uploaded filename is invalid")]
@@ -182,10 +231,7 @@ fn validate_filename(filename: &str) -> Result<(), LicenseValidationError> {
     Ok(())
 }
 
-fn derive_title(
-    filename: &str,
-    requested: Option<&str>,
-) -> Result<String, LicenseValidationError> {
+fn derive_title(filename: &str, requested: Option<&str>) -> Result<String, LicenseValidationError> {
     let value = requested.unwrap_or_else(|| filename_stem(filename)).trim();
     let invalid = value.is_empty()
         || value.chars().count() > MAX_TITLE_CHARS

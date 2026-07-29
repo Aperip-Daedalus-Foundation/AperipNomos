@@ -1,5 +1,5 @@
 use std::{
-    fs::{File, OpenOptions},
+    fs::{self, File, OpenOptions},
     path::{Path, PathBuf},
 };
 
@@ -11,6 +11,12 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum StorageError {
+    #[error("failed to canonicalize RNMDB database path {path}: {source}")]
+    NormalizePath {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
     #[error("failed to acquire RNMDB owner lock at {path}: {source}")]
     OwnerLock {
         path: PathBuf,
@@ -29,6 +35,38 @@ pub enum StorageError {
     Execute(#[source] RnovError),
     #[error("RNMDB checkpoint failed: {0}")]
     Checkpoint(#[source] RnovError),
+}
+
+pub(crate) fn canonical_database_path(database_path: &Path) -> Result<PathBuf, StorageError> {
+    match fs::canonicalize(database_path) {
+        Ok(path) => Ok(path),
+        Err(source) if source.kind() == std::io::ErrorKind::NotFound => {
+            let parent = database_path
+                .parent()
+                .filter(|path| !path.as_os_str().is_empty())
+                .unwrap_or_else(|| Path::new("."));
+            let file_name = database_path.file_name().ok_or_else(|| {
+                normalization_error(database_path, "database path has no file name")
+            })?;
+            fs::canonicalize(parent)
+                .map(|path| path.join(file_name))
+                .map_err(|source| StorageError::NormalizePath {
+                    path: database_path.to_path_buf(),
+                    source,
+                })
+        }
+        Err(source) => Err(StorageError::NormalizePath {
+            path: database_path.to_path_buf(),
+            source,
+        }),
+    }
+}
+
+fn normalization_error(path: &Path, message: &'static str) -> StorageError {
+    StorageError::NormalizePath {
+        path: path.to_path_buf(),
+        source: std::io::Error::new(std::io::ErrorKind::InvalidInput, message),
+    }
 }
 
 pub struct DatabaseOwnerLock {
@@ -52,12 +90,27 @@ impl DatabaseOwnerLock {
             })?;
         match FileExt::try_lock_exclusive(&file) {
             Ok(()) => Ok(Self { file }),
-            Err(source) if source.kind() == std::io::ErrorKind::WouldBlock => {
-                Err(StorageError::AlreadyOwned { path })
-            }
+            Err(source) if lock_is_contended(&source) => Err(StorageError::AlreadyOwned { path }),
             Err(source) => Err(StorageError::OwnerLock { path, source }),
         }
     }
+}
+
+fn lock_is_contended(error: &std::io::Error) -> bool {
+    if error.kind() == std::io::ErrorKind::WouldBlock {
+        return true;
+    }
+    windows_lock_is_contended(error)
+}
+
+#[cfg(windows)]
+fn windows_lock_is_contended(error: &std::io::Error) -> bool {
+    matches!(error.raw_os_error(), Some(32 | 33))
+}
+
+#[cfg(not(windows))]
+fn windows_lock_is_contended(_error: &std::io::Error) -> bool {
+    false
 }
 
 impl Drop for DatabaseOwnerLock {
